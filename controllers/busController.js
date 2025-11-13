@@ -1,31 +1,26 @@
-const db = require("../utils/db_connections");
+const Bus = require("../models/Bus");
 
-// POST /buses → Add new bus
-const addBus = (req, res) => {
-    const { busNumber, totalSeats, availableSeats } = req.body;
-
-    const query = `INSERT INTO buses (busNumber, totalSeats, availableSeats) VALUES (?, ?, ?)`;
-    db.execute(query, [busNumber, totalSeats, availableSeats], (err, result) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send("Error adding bus");
-        }
-        res.status(201).send(`✅ Bus '${busNumber}' added successfully`);
-    });
+// POST /buses
+exports.addBus = async (req, res) => {
+    try {
+        const bus = await Bus.create(req.body);
+        res.status(201).send("Bus added successfully");
+    } catch (error) {
+        res.status(500).send("Error adding bus");
+    }
 };
 
-// GET /buses/available/:seats → Retrieve all buses with available seats > given number
-const getAvailableBuses = (req, res) => {
-    const seats = parseInt(req.params.seats);
-    const query = `SELECT * FROM buses WHERE availableSeats > ?`;
+// GET /buses/available/:seats
+exports.getAvailableBuses = async (req, res) => {
+    try {
+        const minSeats = req.params.seats;
 
-    db.execute(query, [seats], (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send("Error fetching buses");
-        }
-        res.status(200).json(results);
-    });
+        const buses = await Bus.findAll({
+            where: { availableSeats: { gt: minSeats } }
+        });
+
+        res.json(buses);
+    } catch (error) {
+        res.status(500).send("Error fetching buses");
+    }
 };
-
-module.exports = { addBus, getAvailableBuses };

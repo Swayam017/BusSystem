@@ -1,29 +1,21 @@
-const db = require("../utils/db_connections");
+const User = require("../models/User");
 
-// POST /users → Add user
-const addUser = (req, res) => {
-    const { name, email } = req.body;
-
-    const query = `INSERT INTO users (name, email) VALUES (?, ?)`;
-    db.execute(query, [name, email], (err, result) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send("Error adding user");
-        }
-        res.status(201).send(` User '${name}' added successfully`);
-    });
+// POST /users
+exports.addUser = async (req, res) => {
+    try {
+        const user = await User.create(req.body);
+        res.status(201).send("User created successfully");
+    } catch (error) {
+        res.status(500).send("Error creating user");
+    }
 };
 
-// GET /users → Retrieve all users
-const getAllUsers = (req, res) => {
-    const query = `SELECT * FROM users`;
-    db.execute(query, (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send("Error fetching users");
-        }
-        res.status(200).json(results);
-    });
+// GET /users
+exports.getUsers = async (req, res) => {
+    try {
+        const users = await User.findAll();
+        res.json(users);
+    } catch (error) {
+        res.status(500).send("Error fetching users");
+    }
 };
-
-module.exports = { addUser, getAllUsers };

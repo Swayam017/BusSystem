@@ -1,68 +1,17 @@
-const mysql = require('mysql2');
+const { Sequelize } = require("sequelize");
 
-// MySQL connection
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'Mitaliguli017#',
-    database: 'testdb'
+const sequelize = new Sequelize("testdb", "root", "Mitaliguli017#", {
+    host: "localhost",
+    dialect: "mysql"
 });
 
-connection.connect((err) => {
-    if (err) {
-        console.error(" Database Connection Failed:", err);
-        return;
+(async () => {
+    try {
+        await sequelize.authenticate();
+        console.log("Sequelize connected successfully");
+    } catch (error) {
+        console.error("Unable to connect:", error);
     }
-    console.log(" MySQL Connected Successfully");
-});
+})();
 
-// SQL Queries to create tables
-const createUsersTable = `
-CREATE TABLE IF NOT EXISTS Users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50),
-    email VARCHAR(50)
-)`;
-
-const createBusesTable = `
-CREATE TABLE IF NOT EXISTS Buses (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    busNumber VARCHAR(20),
-    totalSeats INT,
-    availableSeats INT
-)`;
-
-const createBookingsTable = `
-CREATE TABLE IF NOT EXISTS Bookings (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    seatNumber INT
-)`;
-
-const createPaymentsTable = `
-CREATE TABLE IF NOT EXISTS Payments (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    amountPaid DECIMAL(10,2),
-    paymentStatus VARCHAR(20)
-)`;
-
-// Execute queries one by one
-connection.query(createUsersTable, (err) => {
-    if (err) console.error(" Error creating Users table:", err);
-    else console.log(" Users table ready");
-});
-
-connection.query(createBusesTable, (err) => {
-    if (err) console.error(" Error creating Buses table:", err);
-    else console.log(" Buses table ready");
-});
-
-connection.query(createBookingsTable, (err) => {
-    if (err) console.error(" Error creating Bookings table:", err);
-    else console.log(" Bookings table ready");
-});
-
-connection.query(createPaymentsTable, (err) => {
-    if (err) console.error("Error creating Payments table:", err);
-    else console.log(" Payments table ready");
-});
-module.exports = connection;
+module.exports = sequelize;
