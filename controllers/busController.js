@@ -1,4 +1,6 @@
 const Bus = require("../models/Bus");
+const { Op } = require("sequelize");
+
 
 // POST /buses
 exports.addBus = async (req, res) => {
@@ -16,7 +18,7 @@ exports.getAvailableBuses = async (req, res) => {
         const minSeats = req.params.seats;
 
         const buses = await Bus.findAll({
-            where: { availableSeats: { gt: minSeats } }
+            where: { availableSeats: { [Op.gt]: minSeats } }
         });
 
         res.json(buses);
